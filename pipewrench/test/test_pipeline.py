@@ -1,11 +1,15 @@
 import pytest
 
-import lib.fittings
-import tests.testobjs as testobjs
+import pipewrench
+import pipewrench.test.testobjs as testobjs
+import logging
+LOGLVL = logging.DEBUG
+
+logging.basicConfig(level=LOGLVL, format='%(asctime)s %(name)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 @pytest.fixture(scope = 'class')
 def pipefitting():
-	return lib.fittings.PipeFitting()
+	return pipewrench.PipeFitting()
 	
 @pytest.fixture()
 def filter():
@@ -14,6 +18,14 @@ def filter():
 @pytest.fixture()
 def screen():
 	return testobjs.TScreen()
+	
+@pytest.fixture()
+def retryscreen():
+	return pipewrench.RetryScreen(slideTime = 1)
+	
+@pytest.fixture()
+def retryfilter():
+	return testobjs.TFilterRetry()
 	
 class Test_PipeFitting(object):
 	def test_addFilter(self, pipefitting, filter):
@@ -38,3 +50,13 @@ class Test_PipeFitting(object):
 	def test_Step(self, pipefitting):
 		for msg in pipefitting.Step(1):
 			print msg
+			
+	
+class Test_Retry(object):
+	def test_addObjs(self, retryfilter, retryscreen, pipefitting):
+		pipefitting.addFilter(retryfilter)
+		pipefitting.addScreen(retryscreen, True)
+		
+	def test_Retry(self, pipefitting):
+		msg = pipefitting.Process(0)
+		assert msg == 4

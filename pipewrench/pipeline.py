@@ -91,7 +91,8 @@ class Message(object):
 	def __init__(self, payload = None):
 		self.StopProcessing = False
 		self.Error = None
-		if payload:
+		self.Retry = False
+		if not payload == None:
 			self.payload = payload
 			self.Unpack = True
 		else:

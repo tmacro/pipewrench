@@ -1,4 +1,4 @@
-import lib.pipeline as pipeline
+import pipewrench.pipeline as pipeline
 
 class TScreen(pipeline.Screen):
 	def Execute(self, msg):
@@ -14,3 +14,10 @@ class TFilter(pipeline.Filter):
 			self.msg.StopProcessing = True
 		return msg
 		
+		
+class TFilterRetry(pipeline.Filter):
+	def Execute(self, msg):
+		msg = msg + 1
+		if msg < 5:
+			self.msg.Retry = True
+		return msg
