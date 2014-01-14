@@ -1,31 +1,28 @@
 import pipeline
+from screens import ExceptionScreen, StopProcessingScreen
+from Queue import Queue
+from worker import Worker
+import logging
+module_logger = logging.getLogger(__name__)
 
-class PipeFitting(object):
+class BaseFitting(object):
 	def __init__(self):
 		self.pipeline = pipeline.Pipeline()
-		self.addFilter = self.pipeline.addFilter
-		self.addScreen = self.pipeline.addScreen
+		self.Execute = self.pipeline.Execute
+		self.logger = module_logger.getChild(self.__class__.__name__)
 		
-	def Process(self, msg):
-		msg = self.packMessage(msg)
-		msg = self.pipeline.Execute(msg)
-		msg = self.unpackMessage(msg)
-		return msg
+	def Invoke(self, msg):
+		return self.Execute(msg)
+		
+	def Register(self, filter, *args):
+		self.logger.debug('Registered: %s'%str(filter))
+		self.pipeline.Register(filter, *args)
+		return self
 			
-	def packMessage(self, msg):
-		if isinstance(msg, pipeline.Message):
-			return msg
-		else:
-			return pipeline.Message(msg)
+class PipeFitting(BaseFitting):
+	def Invoke(self, msg):
+		stop_processing_screen = StopProcessingScreen(self.Execute)
+		exception_screen = ExceptionScreen(stop_processing_screen.Execute)
+		return exception_screen.Execute(msg)
 			
-	def unpackMessage(self, msg):
-		if msg.Unpack:
-			return msg.payload
-		else:
-			return msg
-			
-	def Step(self, msg):
-		msg = self.packMessage(msg)
-		for message in self.pipeline.Step(msg):
-			msg = self.unpackMessage(message)
-			yield msg
+	

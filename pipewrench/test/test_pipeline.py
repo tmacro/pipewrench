@@ -1,62 +1,68 @@
 import pytest
-
-import pipewrench
 import pipewrench.test.testobjs as testobjs
 import logging
+import pipewrench
+from pipewrench.screens import *
+import pipewrench.errors as errors
 LOGLVL = logging.DEBUG
 
 logging.basicConfig(level=LOGLVL, format='%(asctime)s %(name)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 @pytest.fixture(scope = 'class')
 def pipefitting():
-	return pipewrench.PipeFitting()
+	return testobjs.TFitting()
+
+@pytest.fixture(scope = 'class')
+def simple_filter():
+	return testobjs.TFilter
+
+@pytest.fixture(scope = 'class')
+def retry_pipe():
+	fitting = testobjs.TRetryFitting()
+	fitting.Register(testobjs.TFilterRetry,)
+	return fitting
 	
-@pytest.fixture()
-def filter():
-	return testobjs.TFilter()
+@pytest.fixture(scope = 'class')
+def stop_processing_pipe():
+	fitting = testobjs.TStopProcessingFitting()
+	fitting.Register(testobjs.TFilterStopProcessing)
+	return fitting
 	
-@pytest.fixture()
-def screen():
-	return testobjs.TScreen()
+@pytest.fixture(scope = 'function')
+def message():
+	return pipewrench.Message(payload = 1)
 	
-@pytest.fixture()
-def retryscreen():
-	return pipewrench.RetryScreen(slideTime = 1)
-	
-@pytest.fixture()
-def retryfilter():
-	return testobjs.TFilterRetry()
-	
-class Test_PipeFitting(object):
-	def test_addFilter(self, pipefitting, filter):
-		pipefitting.addFilter(filter)
+class Test_Filter(object):
+	def test_filter_add(self, simple_filter, pipefitting):
+		msg = pipefitting.Register(simple_filter)
+		assert msg
 		
-	def test_addFilter2(self, pipefitting, filter):
-		pipefitting.addFilter(filter)
+	def test_Invoke(self, pipefitting, message):
+		msg = pipefitting.Invoke(message)
+		assert msg.payload == 2
 		
-	def test_addFilter3(self, pipefitting, filter):
-		pipefitting.addFilter(filter)
-	
-	def test_addFilterScreen(self, pipefitting, screen):
-		assert pipefitting.addScreen(screen, True)
-		
-	def test_addGlobalScreen(self, pipefitting, screen):
-		assert pipefitting.addScreen(screen)
-		
-	def test_Process(self, pipefitting):
-		msg = pipefitting.Process(1)
-		assert msg == 4
-		
-	def test_Step(self, pipefitting):
-		for msg in pipefitting.Step(1):
-			print msg
-			
-	
 class Test_Retry(object):
-	def test_addObjs(self, retryfilter, retryscreen, pipefitting):
-		pipefitting.addFilter(retryfilter)
-		pipefitting.addScreen(retryscreen, True)
+	def test_Invoke(self, retry_pipe, message):
+		msg = retry_pipe.Invoke(message)
+		assert msg.payload == 3
 		
-	def test_Retry(self, pipefitting):
-		msg = pipefitting.Process(0)
-		assert msg == 4
+	def test_maxRetry(self, retry_pipe, message):
+		message.payload = -10
+		try:
+			msg = retry_pipe.Invoke(message)
+			
+		except errors.StopProcessingError:
+			assert True
+		
+		else:
+			assert False
+			
+class Test_StopProcessing(object):
+	def test_Invoke(self, stop_processing_pipe, message):
+		message.payload = True
+		msg = stop_processing_pipe.Invoke(message)
+		assert msg.StopProcessing
+		
+			
+
+		

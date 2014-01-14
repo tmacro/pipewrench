@@ -1,50 +1,72 @@
 from pipeline import Screen
+import errors
 import time
 import logging
+from multiprocessing import Pool
+
 moduleLogger = logging.getLogger(__name__)
-class ExceptionHandler(Screen):
+
+class ExceptionScreen(Screen):
 	def Execute(self, msg):
 		try:
 			self.target(msg)
 		except Exception as e:
+			self.logger.error('Caught Exception: %s'%str(e))
 			msg.StopProcessing = True
-			msg.Error = e
+			msg.Error = str(e)
 		return msg
 		
-class StopProcessingHandler(Screen):
+class StopProcessingScreen(Screen):
 	def Execute(self, msg):
-		if msg.StopProcessing:
+		try:
+			 msg = self.target(msg)
+		
+		except errors.StopProcessingError as e:
+			self.logger.debug('Stop Processing Caught: %s'%str(e))
+			msg.StopProcessing = True
+			msg.error = str(e)
+			
+		finally:
 			return msg
-		else:
-			return self.target(msg)
 			
 			
 class RetryScreen(Screen):
-	def __init__(self, Retry = 3, slideTime = 5):
-		self.Retry = Retry
+	def __init__(self, Target, Retry = 3, slideTime = 1):
+		self.maxRetry = Retry
 		self.slideTime = slideTime
 		self.currentRetry = 0
-		Screen.__init__(self)
+		self.target = Target
+		Screen.__init__(self, Target)
 		
 	def Execute(self, msg):
 		logger = moduleLogger.getChild(self.__class__.__name__)
-		msg = self.target(msg)
 		try:
-			if msg.Retry:
-				self.currentRetry = self.currentRetry+1
-				logger.debug('msg.Retry = True')
-				if not self.currentRetry > self.Retry:
-					logger.debug('Retrying %s of %s'%(str(self.currentRetry), str(self.Retry)))
-					logger.debug('Sleeping %s'%str(self.slideTime*self.currentRetry))
-					time.sleep(self.slideTime*self.currentRetry)
-					msg.Retry = False
-					msg = self.Execute(msg)
-				else:
-					logger.debug('Max Retries Reached')
-					msg.StopProcessing = True
-					msg.Error = 'Max retries reached'
+			msg = self.target(msg)
 			
-		except AttributeError:
-			pass
-		self.currentRetry = 0
+		except errors.RetryError as e:
+			self.currentRetry = self.currentRetry + 1
+			self.logger.debug('Caught Retry: %s'%str(self.currentRetry))
+			if not self.currentRetry > self.maxRetry:
+				self.logger.debug('Sleeping: %s'%str(self.slideTime * self.currentRetry))
+				time.sleep(self.slideTime * self.currentRetry)
+				if e.msg:
+					msg = self.Execute(e.msg)
+				else:
+					msg = self.Execute(msg)
+				
+			else:
+				raise errors.StopProcessingError('Max Retries Reached: %s'%e.error)
+		
 		return msg
+class AsynScreen(Screen):
+	def __int__(self, target, workers = None, callback = None):
+		self.pool = Pool(processes = workers)
+		self.callback = callback
+		self.target = target
+		
+	def Execute(self, msg):
+		if self.callback:
+			return self.pool.apply_async(self.target, (msg,), callback = self.callback)
+		else:
+			return self.pool.apply_async(self.target, (msg,))
+			

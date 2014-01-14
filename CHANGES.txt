@@ -1,2 +1,3 @@
 v0.0.1, 01/09/2014 -- Initial release.
 v0.0.2, 01/10/2014 -- Added Retry Screen
+v0.1.0, 01/14/2014 -- Completely rewrote in no way backward compatible
