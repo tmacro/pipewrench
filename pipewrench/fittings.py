@@ -1,7 +1,5 @@
 import pipeline
 from screens import ExceptionScreen, StopProcessingScreen
-from Queue import Queue
-from worker import Worker
 import logging
 module_logger = logging.getLogger(__name__)
 

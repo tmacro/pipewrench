@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='Pipewrench',
-    version='0.1.0',
+    version='0.1.1',
     author='Taylor McKinnon',
     author_email='tokintmac@gmail.com',
     packages=['pipewrench', 'pipewrench.test'],
