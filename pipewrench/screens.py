@@ -57,16 +57,4 @@ class RetryScreen(Screen):
 			else:
 				raise errors.StopProcessingError('Max Retries Reached: %s'%e.error)
 		
-		return msg
-class AsynScreen(Screen):
-	def __int__(self, target, workers = None, callback = None):
-		self.pool = Pool(processes = workers)
-		self.callback = callback
-		self.target = target
-		
-	def Execute(self, msg):
-		if self.callback:
-			return self.pool.apply_async(self.target, (msg,), callback = self.callback)
-		else:
-			return self.pool.apply_async(self.target, (msg,))
-			
+		return msg	

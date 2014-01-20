@@ -1,5 +1,7 @@
-from fittings import PipeFitting
-from pipeline import Filter
-from pipeline import Screen
+import fittings
+import pipeline
+import screens
+import errors
 from pipeline import Message
 from screens import *
+from fittings import *
