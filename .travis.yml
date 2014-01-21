@@ -4,10 +4,11 @@ python:
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: "pip install -r requirements.txt --use-mirrors"
 # command to run tests, e.g. python setup.py test
-script:  "py.test -v"
+script:  "py.test --cov pipewrench -v --cov-report term-missing"
 notifications:
  webhooks:
   urls:
    - http://desolate-wildwood-7853.herokuapp.com/relay
   on_success: always # default: always
   on_failure: always # default: always
+after_success: "coveralls"

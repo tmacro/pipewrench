@@ -2,7 +2,6 @@ from pipeline import Screen
 import errors
 import time
 import logging
-from multiprocessing import Pool
 
 moduleLogger = logging.getLogger(__name__)
 

@@ -13,6 +13,7 @@ class Pipeline(object):
 		for filter, args in self.filters.iteritems():
 			message = filter(*args).Execute(message)
 		return message
+		
 	
 class Screen(object):
 	def __init__(self, target):
