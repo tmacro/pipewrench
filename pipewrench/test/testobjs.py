@@ -20,6 +20,9 @@ class TFilterRetry(pipeline.Filter):
 	def __init__(self, throw = 3):
 		self.throw = throw
 	def Execute(self, msg):
+		if msg.payload == None:
+			raise RetryError('HUH?')
+			
 		msg.payload = msg.payload + 1
 		if msg.payload < self.throw:
 			raise RetryError('less than 3', msg)
@@ -27,26 +30,9 @@ class TFilterRetry(pipeline.Filter):
 		
 class TFilterStopProcessing(pipeline.Filter):
 	def Execute(self, msg):
-		if msg.payload:
-			raise StopProcessingError('A wild error has appeared')
-		else:
-			return msg
+		raise StopProcessingError('A wild error has appeared')
 			
-class TFitting(BaseFitting):
-	pass
-	
-class TRetryFitting(BaseFitting):
-	def Invoke(self, msg):
-		retry_screen = pipewrench.RetryScreen(self.Execute, slideTime = 0)
-		return retry_screen.Execute(msg)
-		
-class TStopProcessingFitting(BaseFitting):
-	def Invoke(self, msg):
-		stop_processing_screen = pipewrench.StopProcessingScreen(self.Execute)
-		return stop_processing_screen.Execute(msg)
-		
-class TAsyncFitting(BaseFitting):
-	def Invoke(self, msg):
-		async_screen = pipewrench.AsyncScreen(self.Execute)
-		return async_screen.Execute(msg)
+class TFilterException(pipeline.Filter):
+	def Execute(self, msg):
+		raise IOError
 		

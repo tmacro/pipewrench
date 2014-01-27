@@ -37,3 +37,17 @@ class Test_Pipeline(object):
 		pipeline.Register(filter, offset)
 		msg = pipeline.Execute(message)
 		assert msg.payload == num+offset
+		
+class Test_Filter(object):
+	def test_Filter(self):
+		filter = pipewrench.pipeline.Filter()
+		assert filter.Execute(True)
+		
+class Test_Screen(object):
+	@staticmethod
+	def dummyTarget(msg):
+		return msg
+		
+	def test_Screen(self, message):
+		screen = pipewrench.pipeline.Screen(Test_Screen.dummyTarget)
+		assert screen.Execute(True)

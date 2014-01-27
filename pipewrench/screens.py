@@ -8,11 +8,10 @@ moduleLogger = logging.getLogger(__name__)
 class ExceptionScreen(Screen):
 	def Execute(self, msg):
 		try:
-			self.target(msg)
+			msg = self.target(msg)
 		except Exception as e:
 			self.logger.error('Caught Exception: %s'%str(e))
 			msg.StopProcessing = True
-			msg.Error = str(e)
 		return msg
 		
 class StopProcessingScreen(Screen):
@@ -24,8 +23,12 @@ class StopProcessingScreen(Screen):
 			self.logger.debug('Stop Processing Caught: %s'%str(e))
 			msg.StopProcessing = True
 			msg.error = str(e)
+			return msg
 			
-		finally:
+		except:
+			raise
+			
+		else:
 			return msg
 			
 			
