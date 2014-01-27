@@ -36,3 +36,10 @@ class TFilterException(pipeline.Filter):
 	def Execute(self, msg):
 		raise IOError
 		
+class TRouter(pipeline.Router):
+	def Execute(self, msg):
+		if msg.payload == 1:
+			self.Extend(TFilter, 1)
+		else:
+			self.Extend(TFilter, 2)
+		return self.Route(msg)

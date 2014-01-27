@@ -1,4 +1,5 @@
 import logging
+import fittings
 module_logger = logging.getLogger(__name__)
 
 class Pipeline(object):
@@ -29,6 +30,19 @@ class Filter(object):
 	def Execute(self, msg):
 		return msg
 		
+class Router(object):
+	def __init__(self, pipeline = None):
+		self.logger = module_logger.getChild(self.__class__.__name__)
+		if not pipeline:
+			self.pipeline = fittings.PipeFitting()
+		else:
+			self.pipeline = pipeline
+		
+		self.Extend = self.pipeline.Register
+		self.Route = self.pipeline.Invoke
+		
+	def Execute(self, msg):
+		return self.Route(msg)
 	
 		
 class Message(object):

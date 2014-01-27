@@ -51,3 +51,19 @@ class Test_Screen(object):
 	def test_Screen(self, message):
 		screen = pipewrench.pipeline.Screen(Test_Screen.dummyTarget)
 		assert screen.Execute(True)
+		
+class Test_Route(object):
+	@pytest.mark.parametrize("message,final", [
+				(message(1), 2),
+				(message(2), 4)
+		])
+	def test_Route(self, message, final):
+		router = testobjs.TRouter()
+		print router.pipeline
+		msg = router.Execute(message)
+		assert msg.payload == final
+		
+	def test_RouteBase(self):
+		pipefitting = pipewrench.fittings.PipeFitting()
+		router = pipewrench.pipeline.Router(pipefitting)
+		assert router.Execute(True)

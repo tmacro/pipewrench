@@ -4,3 +4,4 @@ v0.1.0, 01/14/2014 -- Completely rewrote in no way backward compatible
 v0.1.1, 01/14/2014 -- Hotfix for failing tests
 v0.1.3, 01/20/2014 -- Added some tests, Rearranged some imports
 v0.1.4, 01/27/2014 -- Minor bug fix and more complete tests
+v0.2.0, 01/27/2014 -- Added message Routers
