@@ -1,10 +1,11 @@
 import logging
 import fittings
-module_logger = logging.getLogger(__name__)
+import collections
+moduleLogger = logging.getLogger(__name__)
 
 class Pipeline(object):
 	def __init__(self):
-		self.filters = {}
+		self.filters = collections.OrderedDict()
 	
 	def Register(self, filter, *args):
 		self.filters[filter] = args
@@ -19,20 +20,20 @@ class Pipeline(object):
 class Screen(object):
 	def __init__(self, target):
 		self.target = target
-		self.logger = module_logger.getChild(self.__class__.__name__)
+		self.logger = moduleLogger.getChild(self.__class__.__name__)
 		
 	def Execute(self, msg):
 		return self.target(msg)
 		
 class Filter(object):	
 	def __init__(self):
-		self.logger = module_logger.getChild(self.__class__.__name__)
+		self.logger = moduleLogger.getChild(self.__class__.__name__)
 	def Execute(self, msg):
 		return msg
 		
 class Router(object):
 	def __init__(self, pipeline = None):
-		self.logger = module_logger.getChild(self.__class__.__name__)
+		self.logger = moduleLogger.getChild(self.__class__.__name__)
 		if not pipeline:
 			self.pipeline = fittings.PipeFitting()
 		else:
@@ -40,10 +41,13 @@ class Router(object):
 		
 		self.Extend = self.pipeline.Register
 		self.Route = self.pipeline.Invoke
+		self.Setup()
 		
 	def Execute(self, msg):
 		return self.Route(msg)
 	
+	def Setup(self):
+		pass
 		
 class Message(object):
 	def __init__(self, **kwargs):
@@ -52,3 +56,6 @@ class Message(object):
 		self.Retry = False
 		for key, value in kwargs.iteritems():
 			setattr(self, key, value)
+			
+	def __repr__(self):
+		return 'SP: %s - Retry: %s - Error: %s'%(self.StopProcessing, self.Retry, self.Error)
