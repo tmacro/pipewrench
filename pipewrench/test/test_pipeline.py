@@ -59,7 +59,7 @@ class Test_Route(object):
 		])
 	def test_Route(self, message, final):
 		router = testobjs.TRouter()
-		print router.pipeline
+		print(router.pipeline)
 		msg = router.Execute(message)
 		assert msg.payload == final
 		

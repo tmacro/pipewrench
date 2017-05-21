@@ -1,5 +1,5 @@
-from pipeline import Screen
-import errors
+from .pipeline import Screen
+from . import errors
 import time
 import logging
 

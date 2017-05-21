@@ -1,5 +1,5 @@
-import pipeline
-from screens import ExceptionScreen, StopProcessingScreen, RetryScreen
+from . import pipeline
+from .screens import ExceptionScreen, StopProcessingScreen, RetryScreen
 import logging
 module_logger = logging.getLogger(__name__)
 

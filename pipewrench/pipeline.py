@@ -1,5 +1,5 @@
 import logging
-import fittings
+from . import fittings
 import collections
 moduleLogger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class Pipeline(object):
 		return self
 		
 	def Execute(self, message):
-		for filter, args in self.filters.iteritems():
+		for filter, args in self.filters.items():
 			message = filter(*args).Execute(message)
 		return message
 		
@@ -54,7 +54,7 @@ class Message(object):
 		self.StopProcessing = False
 		self.Error = None
 		self.Retry = False
-		for key, value in kwargs.iteritems():
+		for key, value in kwargs.items():
 			setattr(self, key, value)
 			
 	def __repr__(self):

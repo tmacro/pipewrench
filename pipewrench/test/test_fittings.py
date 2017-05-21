@@ -48,7 +48,7 @@ class Test_PipeFitting(object):
 	def test_Exception(self, pipefitting, message):
 		pipefitting.Register(testobjs.TFilterException)
 		msg = pipefitting.Invoke(message)
-		print msg.Error
+		print(msg.Error)
 		assert msg.StopProcessing == True
 	
 	def test_StopProcessing(self, pipefitting, message):
