@@ -1,2 +1,3 @@
 include *.txt
 recursive-include docs
+include README.rst
